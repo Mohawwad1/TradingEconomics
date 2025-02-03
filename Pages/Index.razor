@@ -1,0 +1,92 @@
+﻿@page "/"
+@using tradingeconomics.Data
+@inject HttpClient Http
+
+<h1>TradingEconomics Data Comparison: USA vs. Canada</h1>
+
+@if (usaData == null || canadaData == null)
+{
+    <p><em>Loading data...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-6">
+            <h2>USA Data (@usaData.Info.Hits.Value hits)</h2>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Country</th>
+                        <th>Name</th>
+                        <th>Category</th>
+                        <th>Frequency</th>
+                        <th>Unit</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var hit in usaData.Hits)
+                    {
+                        <tr>
+                            <td>@hit.Country</td>
+                            <td>@hit.PrettyName</td>
+                            <td>@(string.IsNullOrWhiteSpace(hit.Category) ? "-" : hit.Category)</td>
+                            <td>@hit.Frequency</td>
+                            <td>@(string.IsNullOrWhiteSpace(hit.Unit) ? "-" : hit.Unit)</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="col-md-6">
+            <h2>Canada Data (@canadaData.Info.Hits.Value hits)</h2>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Country</th>
+                        <th>Name</th>
+                        <th>Category</th>
+                        <th>Frequency</th>
+                        <th>Unit</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var hit in canadaData.Hits)
+                    {
+                        <tr>
+                            <td>@hit.Country</td>
+                            <td>@hit.PrettyName</td>
+                            <td>@(string.IsNullOrWhiteSpace(hit.Category) ? "-" : hit.Category)</td>
+                            <td>@hit.Frequency</td>
+                            <td>@(string.IsNullOrWhiteSpace(hit.Unit) ? "-" : hit.Unit)</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <h3>Comparison Summary</h3>
+    <p>
+        USA has <strong>@usaData.Info.Hits.Value</strong> records while Canada has <strong>@canadaData.Info.Hits.Value</strong> records.
+    </p>
+}
+
+@code {
+    private ApiModel usaData;
+    private ApiModel canadaData;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Provided USA URL:
+        var usaUrl = "https://brains.tradingeconomics.com/v2/search/wb,fred,comtrade?q=usa&pp=50&p=0&_=1557934352427&stance=2";
+        // Assuming a similar URL exists for Canada (adjust query parameter accordingly)
+        var canadaUrl = "https://brains.tradingeconomics.com/v2/search/wb,fred,comtrade?q=canada&pp=50&p=0&_=1557934352427&stance=2";
+
+        // Fetch the USA data
+        usaData = await Http.GetFromJsonAsync<ApiModel>(usaUrl);
+
+        // Fetch the Canada data
+        canadaData = await Http.GetFromJsonAsync<ApiModel>(canadaUrl);
+    }
+}
